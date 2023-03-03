@@ -42,6 +42,13 @@ To use this repository, simply run the Jupyter Notebook "solution.ipynb" with yo
 jupyter notebook solution.ipynb
 ```
 
+## Releases
+
+- Release v1.0.0-general-data-preparation
+  * Feature: data-preparation
+  * Feature: synthetic-features
+  * Feature: data-exploration (2023-03-03T20:53)
+
 ## Additional Information
 If you encounter any issues while replicating this repository, please feel free to contact me.
 
