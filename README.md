@@ -1,6 +1,6 @@
 # Latam Challenge
 
-This repository contains the solution to the Latam Challenge, which consists in predicting the probability of delay of the flights that land or take off from the airport of Santiago de Chile (SCL) using data from 2017.
+This repository contains the solution to the Latam Challenge, which consists in predicting the probability of delay of the flights that take off from the airport of Santiago de Chile (SCL) using data from 2017.
 
 ## Requirements
 
@@ -46,7 +46,7 @@ jupyter notebook solution.ipynb
 
 - Release v1.0.0-general-data-preparation
   * Feature: data-preparation
-  * Feature: synthetic-features
+  * Feature: synthetic-features (2023-03-03T22:04)
   * Feature: data-exploration (2023-03-03T20:53)
 
 ## Additional Information
