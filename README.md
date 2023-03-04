@@ -44,7 +44,7 @@ jupyter notebook solution.ipynb
 
 ## Releases
 
-- Release v1.0.0-general-data-preparation
+- Release v1.0.0-general-data-preparation (2023-03-04T15:43)
   * Feature: data-preparation (2023-03-04T15:34)
   * Feature: synthetic-features (2023-03-03T22:04)
   * Feature: data-exploration (2023-03-03T20:53)
