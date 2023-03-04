@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 import math
 import re
 
@@ -71,6 +72,15 @@ def fix_flight_number(df: pd.DataFrame, column_list: list) -> pd.DataFrame:
 
 
 def get_time_window(hour: int) -> str:
+    """
+    Returns the time window given an hour.
+
+    Args:
+        hour (int): The hour to convert to a time window.
+
+    Returns:
+        str: The corresponding time window.
+    """
     if hour < 2:
         return '[0-2)'
     elif hour < 4:
@@ -95,3 +105,42 @@ def get_time_window(hour: int) -> str:
         return '[20-22)'
     else:
         return '[22-24)'
+    
+
+def plot_delay_rate_by_group(df: pd.DataFrame, group_column: str, analysis_column: str, n_bars: int, legend_location: str, order: str ='Top') -> None:
+    """
+    Plots the delay rate by a given group column, considering the analysis column.
+
+    Args:
+        df (pd.DataFrame): The dataframe to be analyzed.
+        group_column (str): The column name to group the dataframe.
+        analysis_column (str): The column name to calculate the delay rate.
+        n_bars (int): The number of bars to plot.
+        legend_location (str): The location of the legend.
+
+    Returns:
+        None
+    """
+
+    # Delay rate by Group
+    delay_rate_by_group = df.groupby(group_column)[analysis_column].mean().reset_index()
+
+   
+    if order == 'Top':
+        top_n_group = delay_rate_by_group.nlargest(n_bars, analysis_column)
+    elif order == 'Bottom':
+        top_n_group = delay_rate_by_group.nsmallest(n_bars, analysis_column)
+
+    delay_rate_by_group_pct = pd.DataFrame({group_column: top_n_group[group_column],
+                                             'delay': top_n_group[analysis_column]*100,
+                                             'on_time': (1-top_n_group[analysis_column])*100})
+
+    ax = delay_rate_by_group_pct.plot(x=group_column, kind='bar', stacked=True, figsize=(10,6), 
+                                      color=['red', 'green'], edgecolor='black', width=0.7)
+
+    for i in ax.containers:
+        ax.bar_label(i, labels=[f"{h:.1f}%" for h in i.datavalues], label_type='edge', fontsize=8)
+
+    ax.set_title(f'Delay rate by {group_column} ({order} {n_bars})', fontsize=14)
+    ax.legend(['Delay', 'On-time'], fontsize=12, loc=legend_location)
+    plt.show()
