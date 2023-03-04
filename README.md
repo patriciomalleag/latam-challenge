@@ -44,6 +44,11 @@ jupyter notebook solution.ipynb
 
 ## Releases
 
+- Release v1.1.0-general-data-preparation 
+  * Feature: model-training 
+  * Feature: model-data-preparation 
+  * Feature: data-analysis-delay-rate (2023-03-04T19:02)
+
 - Release v1.0.0-general-data-preparation (2023-03-04T15:43)
   * Feature: data-preparation (2023-03-04T15:34)
   * Feature: synthetic-features (2023-03-03T22:04)
