@@ -68,3 +68,30 @@ def fix_flight_number(df: pd.DataFrame, column_list: list) -> pd.DataFrame:
     for column in column_list:
         df[column] = df[column].apply(convert_to_int).astype('Int64')
     return df
+
+
+def get_time_window(hour: int) -> str:
+    if hour < 2:
+        return '[0-2)'
+    elif hour < 4:
+        return '[2-4)'
+    elif hour < 6:
+        return '[4-6)'
+    elif hour < 8:
+        return '[6-8)'
+    elif hour < 10:
+        return '[8-10)'
+    elif hour < 12:
+        return '[10-12)'
+    elif hour < 14:
+        return '[12-14)'
+    elif hour < 16:
+        return '[14-16)'
+    elif hour < 18:
+        return '[16-18)'
+    elif hour < 20:
+        return '[18-20)'
+    elif hour < 22:
+        return '[20-22)'
+    else:
+        return '[22-24)'
