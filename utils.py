@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import math
 import re
@@ -112,19 +113,16 @@ def plot_delay_rate_by_group(df: pd.DataFrame, group_column: str, analysis_colum
     Plots the delay rate by a given group column, considering the analysis column.
 
     Args:
-        df (pd.DataFrame): The dataframe to be analyzed.
+        df (pandas.DataFrame): The dataframe to be analyzed.
         group_column (str): The column name to group the dataframe.
         analysis_column (str): The column name to calculate the delay rate.
         n_bars (int): The number of bars to plot.
         legend_location (str): The location of the legend.
 
     Returns:
-        None
+        None: Displays the plot on the screen.
     """
-
-    # Delay rate by Group
     delay_rate_by_group = df.groupby(group_column)[analysis_column].mean().reset_index()
-
    
     if order == 'Top':
         top_n_group = delay_rate_by_group.nlargest(n_bars, analysis_column)
@@ -144,3 +142,123 @@ def plot_delay_rate_by_group(df: pd.DataFrame, group_column: str, analysis_colum
     ax.set_title(f'Delay rate by {group_column} ({order} {n_bars})', fontsize=14)
     ax.legend(['Delay', 'On-time'], fontsize=12, loc=legend_location)
     plt.show()
+
+
+def one_hot_encode(df: pd.DataFrame, cols: list) -> pd.DataFrame:
+    """
+    Applies one-hot encoding to the specified categorical columns of a pandas DataFrame.
+
+    Args:
+        df (pandas.DataFrame): The pandas DataFrame to be encoded.
+        cols (list): List of column names to be encoded.
+
+    Returns:
+        pandas.DataFrame: The encoded pandas DataFrame.
+    """
+
+    for col in cols:
+        one_hot = pd.get_dummies(df[col], prefix=col)
+        df = df.drop(col, axis=1)
+        df = df.join(one_hot)
+    return df
+
+
+def plot_corr_matrix(df, figsize=(12, 10), text_annotations=True, xticklabels=True, yticklabels=True):
+    """
+    Plots a correlation matrix based on the input DataFrame.
+
+    Args:
+        df (pandas.DataFrame): The input DataFrame containing numerical data.
+        figsize (tuple), optional (default=(12, 10)): The size of the plot in inches.
+        text_annotations (bool), optional (default=True): Whether to show the numerical correlation values as text annotations.
+        xticklabels (bool), optional (default=True): Whether to show x-axis tick labels (variable names).
+        yticklabels (bool), optional (default=True): Whether to show y-axis tick labels (variable names).
+
+    Returns:
+        None: Displays the plot on the screen.
+    """
+    corr = df.corr()
+    corr = np.tril(corr)  # asignar cero a los elementos por encima de la diagonal principal
+
+    fig, ax = plt.subplots(figsize=figsize)
+    im = ax.imshow(corr, cmap='coolwarm', vmin=-1, vmax=1)
+
+    cbar = ax.figure.colorbar(im, ax=ax)
+    cbar.ax.set_ylabel("Correlation", rotation=-90, va="bottom", fontsize=12)
+
+    if xticklabels:
+        ax.set_xticks(np.arange(len(corr.columns)))
+        ax.set_xticklabels(corr.columns, rotation=45, ha="right", fontsize=10)
+    else:
+        ax.set_xticks([])
+
+    if yticklabels:
+        ax.set_yticks(np.arange(len(corr.columns)))
+        ax.set_yticklabels(corr.columns, fontsize=10)
+    else:
+        ax.set_yticks([])
+
+    if text_annotations:
+        for i in range(len(corr.columns)):
+            for j in range(i): # rango modificado para mostrar solo diagonal inferior
+                text = ax.text(j, i, round(corr[i, j], 2), ha="center", va="center", color="black", fontsize=8)
+
+    ax.set_title("Correlation Matrix", fontsize=16)
+    fig.tight_layout()
+
+    plt.show()
+
+
+def find_highly_correlated_vars(df, corr_threshold=0.95):
+    """
+     Finds variables in a DataFrame with correlation above a certain threshold.
+
+    Args:
+        df (pandas.DataFrame): The input DataFrame containing numerical data.
+        corr_threshold (float), optional (default=0.95): The minimum absolute correlation value to consider a pair of variables highly correlated.
+
+    Returns:
+        list: A list of variable names that have high correlation with at least one other variable in the DataFrame.
+    """
+    corr_matrix = df.corr()
+    corr_pairs = corr_matrix.stack().reset_index()
+    corr_pairs.columns = ['var1', 'var2', 'corr']
+    corr_pairs = corr_pairs.loc[corr_pairs['var1'] < corr_pairs['var2']]
+    sorted_pairs = corr_pairs[abs(corr_pairs['corr']) > corr_threshold].sort_values(by='corr', ascending=False)
+    vars_to_drop = []
+    for i, row in sorted_pairs.iterrows():
+        if row['var1'].startswith("sch_airline_name_"):
+            var_0 = row['var1']
+            row['var1'] = row['var2']
+            row['var2'] = var_0
+        vars_to_drop.append(row['var2'])
+        print(f"{row['var1']} and {row['var2']}: {row['corr']:.2f}")
+    return vars_to_drop
+
+
+def get_correlations_with_variable(df, variable_name, lower_threshold=0, upper_threshold=1):
+    """
+    Returns a DataFrame with the correlations of all variables with a specific variable, sorted by absolute value.
+
+    Args:
+        df (pandas.DataFrame): The input DataFrame.
+        variable_name (str): The name of the variable to which correlations are being computed.
+        lower_threshold (float), optional (default=0): The lower threshold to filter the correlations by absolute value.
+        upper_threshold (float), optional (default=1): The upper threshold to filter the correlations by absolute value.
+
+    Returns:
+        pandas.DataFrame: A DataFrame with the absolute value and sign of the correlations of all variables with the specific variable, sorted by absolute value.
+    """
+    if lower_threshold < 0 or lower_threshold > 1 or upper_threshold < 0 or upper_threshold > 1:
+        raise ValueError("Threshold values must be between 0 and 1.")
+
+    corr_matrix = df.corr()[variable_name]
+    corr_matrix = corr_matrix.drop(index=variable_name)
+    corr_matrix = corr_matrix[(abs(corr_matrix) >= lower_threshold) & (abs(corr_matrix) <= upper_threshold)]
+    corr_matrix = corr_matrix.sort_values(ascending=False, key=lambda x: abs(x))
+    corr_matrix.name = 'corr'
+    corr_matrix.index.name = 'var'
+    corr_matrix = corr_matrix.reset_index()
+    corr_matrix['corr_sign'] = np.sign(corr_matrix['corr'])
+    corr_matrix['corr_abs'] = abs(corr_matrix['corr'])
+    return corr_matrix[['var', 'corr_sign', 'corr_abs']]
