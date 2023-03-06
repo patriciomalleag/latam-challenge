@@ -44,7 +44,7 @@ jupyter notebook solution.ipynb
 
 ## Releases
 
-- Release v1.1.0-general-data-preparation 
+- Release v1.1.0-general-data-preparation (2023-03-06T08:19)
   * Feature: model-training (2023-03-06T08:07)
   * Feature: model-data-preparation (2023-03-05T13:43)
   * Feature: data-analysis-delay-rate (2023-03-04T19:02)
@@ -53,6 +53,8 @@ jupyter notebook solution.ipynb
   * Feature: data-preparation (2023-03-04T15:34)
   * Feature: synthetic-features (2023-03-03T22:04)
   * Feature: data-exploration (2023-03-03T20:53)
+
+![Gitflow](https://raw.githubusercontent.com/patriciomalleag/latam-challenge/development/img/gitflow.PNG)
 
 ## Additional Information
 If you encounter any issues while replicating this repository, please feel free to contact me.
